@@ -19,7 +19,7 @@ OUT -> A0
 
 > TODO: FIX this, stepper should not be on D1/D2 which is breaking OLED display on Transmitter!
 > Problem: D1/D2 is used by OLED, D8 is used by SPI lib as SS, D0 is empty but wakeup/upload blocker... all that remains is RX(3)/TX(1)!
-> Possible solution: adjust nRF library to use MISO/MOSI/SCLK/SS from RAM bus (CLK, SDO, CMD, SD1, SD2, SD3 pins are unknown)
+> Possible solution: calibrate position with SW on D0 and add 3D-printed end-stop if needed
 
 CLK -> D1
 DT -> D2
