@@ -12,6 +12,8 @@ struct CDATA {
   int version;
 };
 
+String version = "v0.2";
+
 RF24 radio(D3, D4); // CE, CSN
 // SCK = GPIO14 = 5 = D5
 // MISO = GPIO12 = 6 = D6
@@ -91,7 +93,7 @@ void setup() {
         Serial.print("0");
       }
       Serial.println(address, HEX);
-    }
+     }
   }
   if (nDevices == 0) {
     Serial.println("No I2C devices found!!!\n");
@@ -106,29 +108,40 @@ void setup() {
 void loop() {
   
   if (radio.available()) {
-    char text[32] = "";
-    radio.read(&text, sizeof(text));
+    int payload_size = radio.getPayloadSize();    
+    char text[payload_size];
+    radio.read(&text, payload_size);
 
-    if (strlen(text) == 0) return;
+    if (strlen(text) == 0) return;;
 
-    int val = atoi(text); // 1024 > 128 (-8); because the servo has maximum 120° DOF    
+    int in_speed, in_heading;   
+    int n = sscanf(text, "XCTL:%4u:%4u", &in_speed, &in_heading);
+    if (n == 2) {
+      Serial.println(n);
+      Serial.print(F("in_speed="));
+      Serial.println(in_speed);
+      
+      Serial.print(F("in_heading="));
+      Serial.println(in_heading);      
+  
+      Serial.print("IN:    ");
+      Serial.print(text);
 
-    Serial.print("IN:    ");
-    Serial.println(text);
-
-    int new_angle = map(val, 0, 1023, 0, 179);
-    if ((new_angle > angle + 1) || (new_angle < angle - 1)) {
+      int new_angle = map(in_heading, -180, 180, 0, 120); // (-90) to 180?
       angle = new_angle;
       Serial.print("ANGLE: ");
       Serial.print(angle);
       Serial.println("°");
       servo.write(angle);           
-    }
+        
+      pwm = map(in_speed, 0, 1023, 0, 100);   
+      Serial.print("PWM:   ");
+      Serial.print(pwm);
+      Serial.println(" %");
 
-    pwm = map(val, 0, 1023, 0, 100);   
-    Serial.print("PWM:   ");
-    Serial.print(pwm);
-    Serial.println(" %");
+    } else {
+      Serial.println("parse_err");
+    }
 
     if (pwm == 0) {
       M1.setmotor(_STANDBY);
@@ -146,4 +159,11 @@ void loop() {
   
 }
 
+int clamp(int in, int min, int max) {
+  int out = in;
+  if (in <= min) out = min;
+  if (in > min) out = in;
+  if (in > max) out = max;
+  return out;
+}
 
