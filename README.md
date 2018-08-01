@@ -18,11 +18,12 @@ OUT -> A0
 ### KY-041 Stepper Connection
 
 > TODO: FIX this, stepper should not be on D1/D2 which is breaking OLED display on Transmitter!
-> Problem: D1/D2 is used by OLED, D8 is used by SPI lib as SS, D0 is empty but wakeup/upload blocker... all that remains is RX(3)/TX(1)!
+> Problem: D1/D2 is used by OLED, D0 is empty but wakeup/upload blocker... all that remains is RX(3)/TX(1) and D8
 > Possible solution: calibrate position with SW on D0 and add 3D-printed end-stop if needed
 
 CLK -> D1
 DT -> D2
+SW -> D8
 
 ### nRF24 Connection for Transmitter
 
